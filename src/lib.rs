@@ -29,12 +29,16 @@ pub fn unescape(s: &str) -> Option<String> {
             Some('n') => s.push('\n'),
             Some('r') => s.push('\r'),
             Some('t') => s.push('\t'),
+            Some('v') => s.push('\u{000B}'),
             Some('\'') => s.push('\''),
             Some('\"') => s.push('\"'),
             Some('\\') => s.push('\\'),
             Some('u') => s.push(try_option!(unescape_unicode(&mut queue))),
             Some('x') => s.push(try_option!(unescape_byte(&mut queue))),
             Some(c) if c.is_digit(8) => s.push(try_option!(unescape_octal(c, &mut queue))),
+            // for some special cases and leave the rest unchanged.
+            Some('/') => s.push('/'),
+            Some(c) => { s.push('\\'); s.push(c) },
             _ => return None
         };
     }
